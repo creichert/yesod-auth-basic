@@ -14,7 +14,7 @@
 -- instance YesodAuth App where
 --     type AuthId App = Text
 --     getAuthId = return . Just . credsIdent
---     maybeAuthId = defaultMaybeBasicAuthId checkCreds
+--     maybeAuthId = defaultMaybeBasicAuthId checkCreds defaultAuthSettings
 --       where
 --         checkCreds = \k s -> return $ (k == "user")
 --                                    && (s == "secret")
