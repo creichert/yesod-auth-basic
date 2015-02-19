@@ -60,13 +60,12 @@ module Yesod.Auth.Http.Basic
          -- * Drop in replace for maybeAuthId.
          defaultMaybeBasicAuthId
 
-       -- The AuthSettings will not be exported until
-       -- features are implemented which actually uses
-       -- them
-       --
-       -- , AuthSettings
-       -- , authRealm
-       -- , defaultAuthSettings
+       -- The AuthSettings currently do nothing
+       -- useful but are supplied to the defaultMaybeAUthId
+       -- anyways
+       , AuthSettings
+       , authRealm
+       , defaultAuthSettings
        ) where
 
 import           Control.Applicative
