@@ -1,0 +1,64 @@
+#+TITLE: A Yesod Middleware for HTTP Basic Authentication
+#+AUTHOR: Christopher Reichert
+#+EMAIL: creichert07@gmail.com
+#+LINK: badge-hackage https://img.shields.io/hackage/v/yesod-auth-basic.svg?dummy
+#+LINK: hackage       https://hackage.haskell.org/package/yesod-auth-basic
+#+LINK: issues        https://github.com/creichert/yesod-auth-basic/issues
+
+
+[[https://travis-ci.org/creichert/yesod-auth-basic][https://travis-ci.org/creichert/wai-middleware-hmac.svg?branch=master]]
+
+
+This module performs a single authentication lookup per request and
+uses the Yesod request-local caching mechanisms to store valid auth
+credentials found in the Authorization header.
+
+
+* Example
+
+  The recommended way to use this module is to override the
+  *maybeAuthId* to *defaultMaybeBasicAuthId* and supply a
+  credentials lookup function.
+
+  #+BEGIN_SRC haskell
+    instance YesodAuth App where
+        type AuthId App = Text
+        getAuthId = return . Just . credsIdent
+        maybeAuthId = defaultMaybeBasicAuthId checkCreds
+          where
+            checkCreds = \k s -> return $ (k == "user")
+                                       && (s == "secret")
+  #+END_SRC
+
+
+  WWW-Authenticate challenges are currently not implemented.
+  The current workaround is to override the error handler:
+
+  #+BEGIN_SRC haskell
+    instance Yesod App where
+      errorHandler NotAuthenticated = selectRep $
+          provideRep $ do
+            addHeader "WWW-Authenticate" $ T.concat
+                  [ "RedirectJSON realm=\"Realm\", param=\"myurl.com\"" ]
+            -- send error response here
+            ...
+      errorHandler e = defaultErrorHandler e
+      ...
+  #+END_SRC
+
+
+  Proper response statuses on failed authentication is not implemented
+  yet.  The current workaround is to override the =Yesod= typeclass
+  =isAuthorized= function to handle required auth routes. e.g.
+
+  #+BEGIN_SRC haskell
+  instance Yesod App where
+    isAuthorized SecureR _   =
+      maybeAuthId >>= return . maybe AuthenticationRequired (const Authorized)
+    isAuthorized _ _         = Authorized
+  #+END_SRC
+
+
+* Wishlist
+   - [ ] Realm (AuthSettings)
+   - [ ] Proper response status and challenge (AuthSettings)
