@@ -14,20 +14,20 @@ uses the Yesod request-local caching mechanisms to store valid auth
 credentials found in the Authorization header.
 
 
-* Example
+** Example
 
   The recommended way to use this module is to override the
   *maybeAuthId* in the *Yesod* typeclass to *defaultMaybeBasicAuthId*
   and supply a credentials lookup function.
 
   #+BEGIN_SRC haskell
-    instance YesodAuth App where
-        type AuthId App = Text
-        getAuthId = return . Just . credsIdent
-        maybeAuthId = defaultMaybeBasicAuthId checkCreds
-          where
-            checkCreds = \k s -> return $ (k == "user")
-                                       && (s == "secret")
+  instance YesodAuth App where
+      type AuthId App = Text
+      getAuthId = return . Just . credsIdent
+      maybeAuthId = defaultMaybeBasicAuthId checkCreds
+        where
+          checkCreds = \k s -> return $ (k == "user")
+                                     && (s == "secret")
   #+END_SRC
 
 
@@ -36,19 +36,19 @@ credentials found in the Authorization header.
   typeclass:
 
   #+BEGIN_SRC haskell
-    instance Yesod App where
-      errorHandler NotAuthenticated = selectRep $
-          provideRep $ do
-            addHeader "WWW-Authenticate" $ T.concat
-                  [ "RedirectJSON realm=\"Realm\", param=\"myurl.com\"" ]
-            -- send error response here
-            ...
-      errorHandler e = defaultErrorHandler e
-      ...
+  instance Yesod App where
+    errorHandler NotAuthenticated = selectRep $
+        provideRep $ do
+          addHeader "WWW-Authenticate" $ T.concat
+                [ "RedirectJSON realm=\"Realm\", param=\"myurl.com\"" ]
+          -- send error response here
+          ...
+    errorHandler e = defaultErrorHandler e
+    ...
   #+END_SRC
 
 
-  Proper response statuses on failed authentication is not implemented
+  Proper response status on failed authentication is not implemented
   yet.  The current workaround is to override the =Yesod= typeclass
   =isAuthorized= function to handle required auth routes. e.g.
 
@@ -60,6 +60,6 @@ credentials found in the Authorization header.
   #+END_SRC
 
 
-* Wishlist
+** Wishlist
    - [ ] Realm (AuthSettings)
    - [ ] Proper response status and challenge (AuthSettings)
