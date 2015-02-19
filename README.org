@@ -1,4 +1,4 @@
-#+TITLE: A Yesod Middleware for HTTP Basic Authentication
+#+TITLE: Yesod HTTP Basic Authentication
 #+AUTHOR: Christopher Reichert
 #+EMAIL: creichert07@gmail.com
 #+LINK: badge-hackage https://img.shields.io/hackage/v/yesod-auth-basic.svg?dummy
@@ -6,7 +6,7 @@
 #+LINK: issues        https://github.com/creichert/yesod-auth-basic/issues
 
 
-[[https://travis-ci.org/creichert/yesod-auth-basic][https://travis-ci.org/creichert/wai-middleware-hmac.svg?branch=master]]
+[[https://travis-ci.org/creichert/yesod-auth-basic][https://travis-ci.org/creichert/yesod-auth-basic.svg?branch=master]]
 
 
 This module performs a single authentication lookup per request and
