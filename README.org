@@ -17,8 +17,8 @@ credentials found in the Authorization header.
 * Example
 
   The recommended way to use this module is to override the
-  *maybeAuthId* to *defaultMaybeBasicAuthId* and supply a
-  credentials lookup function.
+  *maybeAuthId* in the *Yesod* typeclass to *defaultMaybeBasicAuthId*
+  and supply a credentials lookup function.
 
   #+BEGIN_SRC haskell
     instance YesodAuth App where
@@ -31,8 +31,9 @@ credentials found in the Authorization header.
   #+END_SRC
 
 
-  WWW-Authenticate challenges are currently not implemented.
-  The current workaround is to override the error handler:
+  WWW-Authenticate challenges are currently not implemented.  The
+  current workaround is to override the error handler in the Yesod
+  typeclass:
 
   #+BEGIN_SRC haskell
     instance Yesod App where
