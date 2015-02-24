@@ -61,5 +61,6 @@ credentials found in the Authorization header.
 
 
 ** Wishlist
+   - [ ] Utilize Yesod.Auth framework
    - [ ] Realm (AuthSettings)
    - [ ] Proper response status and challenge (AuthSettings)

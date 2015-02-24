@@ -60,7 +60,7 @@ module Yesod.Auth.Http.Basic
          -- * Drop in replace for maybeAuthId.
          defaultMaybeBasicAuthId
 
-       -- The AuthSettings currently do nothing
+       -- * The AuthSettings currently do nothing
        -- useful but are supplied to the defaultMaybeAUthId
        -- anyways
        , AuthSettings
