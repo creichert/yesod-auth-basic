@@ -1,9 +1,10 @@
 -- | A Yesod middleware for <<http://tools.ietf.org/html/rfc1945#section-11.1 HTTP Basic Authentication>>
 --
--- This middleware performs a single authentication lookup
--- per request and uses the Yesod request-local caching
--- mechanisms to store valid auth credentials found in the
--- Authorization header.
+--
+-- Performs a single authentication lookup per request and uses the
+-- <<https://github.com/yesodweb/yesod/blob/7f775e1ddebaeb4b8509b512b6d4b539d96258bd/yesod-core/Yesod/Core/TypeCache.hs#L21
+-- Yesod request-local caching>> mechanisms to store valid auth
+-- credentials found in the Authorization header.
 --
 --
 -- The recommended way to use this module is to override the

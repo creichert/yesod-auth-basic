@@ -10,8 +10,11 @@
 
 
 This module performs a single authentication lookup per request and
-uses the Yesod request-local caching mechanisms to store valid auth
-credentials found in the Authorization header.
+uses the [Yesod request-local
+caching](https://github.com/yesodweb/yesod/blob/7f775e1ddebaeb4b8509b512b6d4b539d96258bd/yesod-core/Yesod/Core/TypeCache.hs#L21)
+mechanisms to store valid auth credentials found in the Authorization
+header.
+
 
 
 ** Example
