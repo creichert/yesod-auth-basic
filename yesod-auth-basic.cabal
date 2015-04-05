@@ -35,6 +35,9 @@ library
                      , yesod
                      , wai
                      , word8
+  if impl(ghc < 7.6)
+    build-depends:
+      iproute < 1.4
 
 
 test-suite spec
