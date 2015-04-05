@@ -11,8 +11,8 @@
 
 
 This module performs a single authentication lookup per request and
-uses the [[yesod]] mechanisms to store valid auth credentials found in
-the Authorization header.
+uses the [[yesod][Yesod request-local caching]] mechanisms to store valid auth
+credentials found in the Authorization header.
 
 
 
