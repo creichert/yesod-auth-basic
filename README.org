@@ -8,6 +8,7 @@
 
 
 [[https://travis-ci.org/creichert/yesod-auth-basic][https://travis-ci.org/creichert/yesod-auth-basic.svg?branch=master]]
+[[https://hackage.haskell.org/package/yesod-auth-basic][https://img.shields.io/hackage/v/yesod-auth-basic.svg?dummy]]
 
 
 This module performs a single authentication lookup per request and
