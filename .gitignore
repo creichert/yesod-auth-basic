@@ -1,3 +1,6 @@
 dist
 TAGS
 client_session_key.aes
+
+dist-stack/
+.stack-work/
