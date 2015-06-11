@@ -78,6 +78,7 @@ import           Data.Text              (Text)
 import qualified Data.Text.Encoding     as T
 import           Data.Typeable
 import           Data.Word8             (isSpace, toLower, _colon)
+import           Prelude
 import           Network.Wai
 import           Yesod                  hiding (Header)
 
@@ -154,7 +155,7 @@ maybeBasicAuthId checkCreds AuthSettings{..} req =
     authorization = BS.break isSpace
                     <$> lookup "Authorization" (requestHeaders req)
     authorizeCredentials encoded =
-      let (username, password') = BS.breakByte _colon $ decodeLenient encoded
+      let (username, password') = BS.break (== _colon) $ decodeLenient encoded
       in case BS.uncons password' of
           Nothing -> return Nothing
           Just (_,password) -> do
