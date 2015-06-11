@@ -27,14 +27,16 @@ library
   exposed-modules:     Yesod.Auth.Http.Basic
   ghc-options:         -Wall
   default-language:    Haskell2010
-  build-depends:       base              == 4.*
+  build-depends:       base               == 4.*
                      , base64-bytestring
                      , bytestring
                      , exceptions
                      , text
                      , yesod
+                     , yesod-persistent
                      , wai
                      , word8
+
   if impl(ghc < 7.6)
     build-depends:
       iproute < 1.4
@@ -61,4 +63,4 @@ test-suite hlint
     type:             exitcode-stdio-1.0
     default-language: Haskell2010
     build-depends:    base
-                    , hlint > 1.8
+                    , hlint > 1.9
