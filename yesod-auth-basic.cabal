@@ -33,7 +33,6 @@ library
                      , exceptions
                      , text
                      , yesod
-                     , yesod-persistent
                      , wai
                      , word8
 
