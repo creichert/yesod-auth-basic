@@ -45,7 +45,7 @@ test-suite spec
   main-is:             Spec.hs
   hs-source-dirs:      test/
   other-modules:       YesodAuthHttpBasicSpec
-  ghc-options:         -Wall -Werror -threaded
+  ghc-options:         -Wall -threaded
   default-language:    Haskell2010
   build-depends:       base                 == 4.*
                      , yesod
