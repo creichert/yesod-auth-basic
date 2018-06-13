@@ -1,15 +1,13 @@
 language: haskell
 before_install:
 env:
- #- GHCVER=7.4.2 CABALVER=1.18
- - GHCVER=7.6.3 CABALVER=1.18
- - GHCVER=7.8.4 CABALVER=1.18
- - GHCVER=7.10.2 CABALVER=1.22
+ - GHCVER=7.10.3 CABALVER=2.2
+ - GHCVER=8.0.2 CABALVER=2.2
+ - GHCVER=8.2.2 CABALVER=2.2
  - GHCVER=head  CABALVER=head
 
 matrix:
   allow_failures:
-   - env: GHCVER=7.4.2 CABALVER=1.18
    - env: GHCVER=head  CABALVER=head
 
 before_install:
@@ -26,10 +24,5 @@ install:
 
 script:
  - cabal configure --enable-tests
-#--enable-library-coverage || cabal configure --enable-tests --enable-coverage
  - cabal build
  - cabal test
-
-#after_script:
-# - cabal install hpc-coveralls
-# - hpc-coveralls --exclude-dir=test test
