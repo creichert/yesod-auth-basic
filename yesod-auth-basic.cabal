@@ -35,6 +35,7 @@ library
                      , yesod
                      , wai
                      , word8
+                     , monad-control
 
   if impl(ghc < 7.6)
     build-depends:
