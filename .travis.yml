@@ -1,9 +1,10 @@
 language: haskell
 before_install:
 env:
- - GHCVER=7.10.3 CABALVER=2.2
  - GHCVER=8.0.2 CABALVER=2.2
  - GHCVER=8.2.2 CABALVER=2.2
+ - GHCVER=8.4.4 CABALVER=2.2
+ - GHCVER=8.6.3 CABALVER=2.4
  - GHCVER=head  CABALVER=head
 
 matrix:
