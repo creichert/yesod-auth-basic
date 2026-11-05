@@ -1,67 +1,53 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
--- | A Yesod middleware for
--- <<http://tools.ietf.org/html/rfc1945#section-11.1 HTTP Basic
--- Authentication>>
+-- | HTTP Basic authentication for Yesod. Use HTTPS.
 --
---
--- Performs a single authentication lookup per request and uses the
--- <<https://github.com/yesodweb/yesod/blob/master/yesod-core/Yesod/Core/TypeCache.hs#L21
--- Yesod request-local caching>> mechanisms to store valid auth
--- credentials found in the Authorization header.
---
---
--- The recommended way to use this module is to override the
--- @maybeAuthId@ to @defaultMaybeBasicAuthId@ and supply a lookup
--- function.
+-- Import this module and set @maybeAuthId@ in your existing @YesodAuth@
+-- instance, where @AuthId App = Text@:
 --
 -- @
--- instance YesodAuth App where
---     type AuthId App = Text
---     getAuthId = return . Just . credsIdent
---     maybeAuthId = defaultMaybeBasicAuthId checkCreds defaultAuthSettings
---       where
---         checkCreds = \k s -> return $ (k == "user")
---                                    && (s == "secret")
+-- maybeAuthId = defaultMaybeBasicAuthId checkCredentials defaultAuthSettings
 -- @
 --
+-- Supply an application-specific credential checker:
 --
--- WWW-Authenticate challenges are currently not implemented. The
--- current workaround is to override the error handler:
+-- @
+-- checkCredentials :: ByteString -> ByteString -> IO Bool
+-- checkCredentials username password =
+--     pure (username == "user" && password == "secret") -- Example only.
+-- @
+--
+-- The checker receives decoded bytes unchanged. Usernames must be UTF-8;
+-- password encoding is up to the checker. Both successful and failed results
+-- are cached for the current request, never across HTTP requests.
+--
+-- Route authorization and HTTP challenges belong to your application:
 --
 -- @
 -- instance Yesod App where
---   errorHandler NotAuthenticated = selectRep $
---       provideRep $ do
---         addHeader "WWW-Authenticate" $ T.concat
---               [ "RedirectJSON realm=\"Realm\", param=\"myurl.com\"" ]
---         -- send error response here
---         ...
---   errorHandler e = defaultErrorHandler e
---   ...
+--     authRoute _ = Nothing -- Return 401 instead of redirecting to a login page.
+--
+--     isAuthorized ProtectedR _ = do
+--         user <- maybeAuthId
+--         pure $ maybe AuthenticationRequired (const Authorized) user
+--     isAuthorized _ _ = pure Authorized
+--
+--     errorHandler NotAuthenticated = do
+--         addHeader "WWW-Authenticate" "Basic realm=\"API\", charset=\"UTF-8\""
+--         defaultErrorHandler NotAuthenticated
+--     errorHandler err = defaultErrorHandler err
 -- @
 --
---
--- Proper response status on failed authentication is not implemented.
--- The current workaround is to override the 'Yesod' typeclass
--- @isAuthorized@ function to handle required auth routes. e.g.
---
--- @
--- instance Yesod App where
---   isAuthorized SecureR _   =
---     maybeAuthId >>= return . maybe AuthenticationRequired (const Authorized)
---   isAuthorized _ _         = Authorized
--- @
+-- This produces a 401 response for missing or invalid credentials on
+-- @ProtectedR@. See <https://www.rfc-editor.org/rfc/rfc7617 RFC 7617>.
 
 module Yesod.Auth.Http.Basic
        (
-         -- * Drop in replace for maybeAuthId.
+          -- * Authentication
          defaultMaybeBasicAuthId
 
-         -- * The AuthSettings currently do nothing
-         -- useful but are supplied to the defaultMaybeAUthId
-         -- anyways.
+         -- * Settings
        , AuthSettings
        , authRealm
        , defaultAuthSettings
@@ -80,32 +66,36 @@ import Prelude
 import Yesod                  hiding (Header)
 
 
--- | Authentication Settings
+-- | Reserved authentication settings. HTTP challenges are application-managed.
 newtype AuthSettings = AuthSettings {
       authRealm :: Text
+      -- ^ Reserved realm value; does not generate a @WWW-Authenticate@ header.
     } deriving (Eq, Show)
 
--- | Ready-to-go 'AuthSettings' which can be used
+-- | Default reserved settings, with @authRealm = "Realm"@.
 defaultAuthSettings :: AuthSettings
 defaultAuthSettings = AuthSettings { authRealm = "Realm" }
 
--- | Cachable basic authentication credentials
+-- | A request-local authentication result, including failed authentication.
 newtype CachedBasicAuthId a
   = CachedBasicAuthId { unCached :: Maybe a }
     deriving Typeable
 
 
--- | A function to verify user credentials
+-- | Application-supplied checker for decoded username and password bytes.
 type CheckCreds = ByteString
                   -> ByteString
                   -> IO Bool
 
--- | Retrieve the 'AuthId' using Authorization header.
+-- | Look up HTTP Basic credentials and return the verified UTF-8 username.
 --
--- If valid credentials are found and authorized the auth id is
--- cached.
+-- Use as @maybeAuthId@ in a @YesodAuth@ instance with @AuthId@ equal to 'Text'.
+-- Missing or malformed headers, invalid UTF-8 usernames, and rejected
+-- credentials return 'Nothing'. The checker receives the decoded bytes
+-- without trimming; passwords may contain colons.
 --
--- TODO use more general type than Text to represent the auth id
+-- Both successful and failed results are cached within the current request.
+-- This function does not enforce route access or generate a challenge.
 defaultMaybeBasicAuthId
   :: MonadHandler m
   => CheckCreds
@@ -115,7 +105,7 @@ defaultMaybeBasicAuthId auth cfg =
     cachedAuth $ waiRequest >>= maybeBasicAuthId auth cfg
 
 
--- | Cached Authentication credentials
+-- | Cache the authentication result for the current request.
 cachedAuth
   :: (MonadHandler m)
   => m (Maybe Text)
@@ -123,18 +113,13 @@ cachedAuth
 cachedAuth = fmap unCached . cached . fmap CachedBasicAuthId
 
 
--- | Use the HTTP Basic _Authorization_ header to retrieve the AuthId
--- of request
+-- | Decode and check HTTP Basic credentials for one request.
 --
 -- The scheme is case-insensitive and followed by one or more ASCII spaces.
 -- Credentials must be strictly Base64-encoded (RFC 4648); malformed input is
 -- rejected before invoking the credential checker, not silently repaired.
 --
--- This function uses yesod 'cachedAuth' to cache the result of the
--- first succesful header lookup.
---
--- Subsequent calls to 'maybeAuthId' do not require the 'CheckCreds'
--- function to be run again.
+-- Request-local caching is provided by 'defaultMaybeBasicAuthId'.
 maybeBasicAuthId
   :: (MonadHandler m)
   => CheckCreds

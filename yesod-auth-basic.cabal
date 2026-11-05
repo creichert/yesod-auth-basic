@@ -3,24 +3,25 @@ name:                yesod-auth-basic
 version:             0.1.0.3
 license:             BSD3
 license-file:        LICENSE
+extra-source-files:  README.md
 author:              Christopher Reichert
 maintainer:          creichert07@gmail.com
 copyright:           (c) 2015, Christopher Reichert
 category:            Web
 build-type:          Simple
 cabal-version:       2.0
-synopsis:            Yesod Middleware for HTTP Basic Authentication
+synopsis:            HTTP Basic authentication for Yesod
 description:
- An efficient Yesod middleware middleware for HTTP Basic
- Authentication.
+ HTTP Basic authentication with an application-supplied credential checker
+ and request-local caching of successful and failed authentication results.
  .
- Utilizes Yesod request-local caching mechanisms to store valid auth
- credentials found in the Authorization header.
+ See the documentation for Yesod.Auth.Http.Basic for usage examples.
+ Route authorization and HTTP challenges are handled by the application.
 
 
 source-repository head
   type:     git
-  location: git://github.com/creichert/yesod-auth-basic.git
+  location: https://github.com/creichert/yesod-auth-basic.git
 
 
 library
