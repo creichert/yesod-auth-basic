@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
 
 -- | A Yesod middleware for
 -- <<http://tools.ietf.org/html/rfc1945#section-11.1 HTTP Basic
@@ -142,7 +141,7 @@ maybeBasicAuthId
   -> AuthSettings
   -> Request
   -> m (Maybe Text)
-maybeBasicAuthId checkCreds AuthSettings{..} req =
+maybeBasicAuthId checkCreds _ req =
     case authorization of
       Just (strategy, userpass)
         | BS.map toLower strategy == "basic" ->

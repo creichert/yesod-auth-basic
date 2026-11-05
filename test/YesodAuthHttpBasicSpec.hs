@@ -10,7 +10,6 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base64 as Base64
 import           Data.IORef
-import           Data.Monoid ((<>))
 import           Test.Hspec
 import           Yesod       hiding (get)
 import           Yesod.Auth.Http.Basic

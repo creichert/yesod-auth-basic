@@ -48,7 +48,7 @@ jobs:
             ubuntu-22.04-${{ runner.arch }}-stack-${{ matrix.resolver }}-${{ steps.haskell.outputs.stack-version }}-
 
       - name: Build
-        run: stack build --fast --resolver ${{ matrix.resolver }}
+        run: stack build --fast --pedantic --resolver ${{ matrix.resolver }}
 
       - name: Test
-        run: stack test --fast --resolver ${{ matrix.resolver }}
+        run: stack test --fast --pedantic --resolver ${{ matrix.resolver }}
