@@ -1,8 +1,8 @@
 name: CI
 
 on:
+  # Merges also generate pushes; a pull_request trigger would duplicate runs.
   push:
-  pull_request:
   workflow_dispatch:
 
 permissions:
