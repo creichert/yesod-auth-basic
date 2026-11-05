@@ -81,7 +81,7 @@ import Yesod                  hiding (Header)
 
 
 -- | Authentication Settings
-data AuthSettings = AuthSettings {
+newtype AuthSettings = AuthSettings {
       authRealm :: Text
     } deriving (Eq, Show)
 
