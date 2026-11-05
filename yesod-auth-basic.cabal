@@ -1,9 +1,9 @@
 
 name:                yesod-auth-basic
-version:             0.1.0.3
+version:             0.2.0.0
 license:             BSD3
 license-file:        LICENSE
-extra-source-files:  README.md
+extra-doc-files:     README.md, CHANGELOG.md
 author:              Christopher Reichert
 maintainer:          creichert07@gmail.com
 copyright:           (c) 2015, Christopher Reichert
