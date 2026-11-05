@@ -72,10 +72,10 @@ import qualified Data.ByteString        as BS
 import qualified Data.Text.Encoding     as T
 
 import Data.ByteString        (ByteString)
-import Data.ByteString.Base64 (decodeLenient)
+import Data.ByteString.Base64 (decode)
 import Data.Text              (Text)
 import Data.Typeable
-import Data.Word8             (isSpace, toLower, _colon)
+import Data.Word8             (toLower, _colon, _space)
 import Network.Wai
 import Prelude
 import Yesod                  hiding (Header)
@@ -127,6 +127,10 @@ cachedAuth = fmap unCached . cached . fmap CachedBasicAuthId
 -- | Use the HTTP Basic _Authorization_ header to retrieve the AuthId
 -- of request
 --
+-- The scheme is case-insensitive and followed by one or more ASCII spaces.
+-- Credentials must be strictly Base64-encoded (RFC 4648); malformed input is
+-- rejected before invoking the credential checker, not silently repaired.
+--
 -- This function uses yesod 'cachedAuth' to cache the result of the
 -- first succesful header lookup.
 --
@@ -142,18 +146,21 @@ maybeBasicAuthId checkCreds AuthSettings{..} req =
     case authorization of
       Just (strategy, userpass)
         | BS.map toLower strategy == "basic" ->
-              authorizeCredentials $ BS.dropWhile isSpace userpass
+              authorizeCredentials $ BS.dropWhile (== _space) userpass
         | otherwise -> return Nothing
       _ -> return Nothing
   where
-    authorization = BS.break isSpace
+    authorization = BS.break (== _space)
                     <$> lookup "Authorization" (requestHeaders req)
     authorizeCredentials encoded =
-      let (username, password') = BS.break (== _colon) $ decodeLenient encoded
-      in case BS.uncons password' of
-          Nothing -> return Nothing
-          Just (_,password) -> do
-            authorized <- liftIO $ checkCreds username password
-            return $ if authorized
-                       then Just $ T.decodeUtf8 username
-                       else Nothing
+      case decode encoded of
+        Left _ -> return Nothing
+        Right decoded ->
+          let (username, password') = BS.break (== _colon) decoded
+          in case BS.uncons password' of
+              Nothing -> return Nothing
+              Just (_,password) -> do
+                authorized <- liftIO $ checkCreds username password
+                return $ if authorized
+                           then Just $ T.decodeUtf8 username
+                           else Nothing

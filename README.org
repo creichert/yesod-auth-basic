@@ -16,6 +16,20 @@ uses the [[yesod][Yesod request-local caching]] mechanisms to store valid auth
 credentials found in the Authorization header.
 
 
+** Header syntax
+
+   The =Basic= scheme is case-insensitive and must be followed by one or more
+   ASCII spaces and an RFC 4648 Base64-encoded =username:password= value.
+   Quoted tokens, non-Base64 characters, embedded whitespace, malformed padding,
+   and trailing junk are rejected before the credential checker is called.
+   Required Base64 padding must be present. The decoded credentials are not
+   trimmed, and colons after the first delimiter remain part of the password.
+
+   This intentionally tightens the earlier lenient decoding behavior; clients
+   sending malformed headers must correct them. Authentication failures still
+   use the application's existing authorization/error handling.
+
+
 
 ** Example
 
