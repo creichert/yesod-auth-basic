@@ -98,7 +98,7 @@ type CheckCreds = ByteString
 -- This function does not enforce route access or generate a challenge.
 defaultMaybeBasicAuthId
   :: MonadHandler m
-  => CheckCreds
+  => (ByteString -> ByteString -> IO Bool)
   -> AuthSettings
   -> m (Maybe Text)
 defaultMaybeBasicAuthId auth cfg =
