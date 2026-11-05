@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  # Merges also generate pushes; a pull_request trigger would duplicate runs.
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stack:
+    name: Stack ${{ matrix.resolver }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        resolver:
+          - lts-18.28 # GHC 8.10.7: older supported dependencies
+          - lts-22.38 # GHC 9.6.6
+          - lts-24.65 # GHC 9.10.3: newer upstream compatibility
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Stack
+        id: haskell
+        uses: haskell-actions/setup@v2
+        with:
+          enable-stack: true
+          stack-no-global: true
+          cabal-update: false
+
+      - name: Cache compiler, dependencies, and build products
+        uses: actions/cache@v5
+        with:
+          path: |
+            ${{ steps.haskell.outputs.stack-root }}
+            .stack-work
+          key: ubuntu-22.04-${{ runner.arch }}-stack-${{ matrix.resolver }}-${{ steps.haskell.outputs.stack-version }}-${{ hashFiles('**/*.cabal', 'stack.yaml', 'stack.yaml.lock') }}
+          restore-keys: |
+            ubuntu-22.04-${{ runner.arch }}-stack-${{ matrix.resolver }}-${{ steps.haskell.outputs.stack-version }}-
+
+      - name: Build
+        run: stack build --fast --pedantic --resolver ${{ matrix.resolver }}
+
+      - name: Test
+        run: stack test --fast --pedantic --resolver ${{ matrix.resolver }}

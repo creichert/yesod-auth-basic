@@ -1,46 +1,40 @@
 
 name:                yesod-auth-basic
-version:             0.1.0.3
+version:             0.2.0.0
 license:             BSD3
 license-file:        LICENSE
+extra-doc-files:     README.md, CHANGELOG.md
 author:              Christopher Reichert
 maintainer:          creichert07@gmail.com
 copyright:           (c) 2015, Christopher Reichert
 category:            Web
 build-type:          Simple
-cabal-version:       >=1.10
-synopsis:            Yesod Middleware for HTTP Basic Authentication
+cabal-version:       2.0
+synopsis:            HTTP Basic authentication for Yesod
 description:
- An efficient Yesod middleware middleware for HTTP Basic
- Authentication.
+ HTTP Basic authentication with an application-supplied credential checker
+ and request-local caching of successful and failed authentication results.
  .
- Utilizes Yesod request-local caching mechanisms to store valid auth
- credentials found in the Authorization header.
+ See the documentation for Yesod.Auth.Http.Basic for usage examples.
+ Route authorization and HTTP challenges are handled by the application.
 
 
 source-repository head
   type:     git
-  location: git://github.com/creichert/yesod-auth-basic.git
+  location: https://github.com/creichert/yesod-auth-basic.git
 
 
 library
   exposed-modules:     Yesod.Auth.Http.Basic
   ghc-options:         -Wall
   default-language:    Haskell2010
-  build-depends:       base               == 4.*
+  build-depends:       base               >= 4.14 && < 5
                      , base64-bytestring
                      , bytestring
-                     , exceptions
                      , text
                      , yesod
                      , wai
                      , word8
-                     , monad-control
-
-  if impl(ghc < 7.6)
-    build-depends:
-      iproute < 1.4
-
 
 test-suite spec
   type:                exitcode-stdio-1.0
@@ -49,7 +43,10 @@ test-suite spec
   other-modules:       YesodAuthHttpBasicSpec
   ghc-options:         -Wall -threaded
   default-language:    Haskell2010
-  build-depends:       base                 == 4.*
+  build-tool-depends:  hspec-discover:hspec-discover
+  build-depends:       base                 >= 4.14 && < 5
+                     , base64-bytestring
+                     , bytestring
                      , yesod
                      , yesod-auth-basic
                      , yesod-test
