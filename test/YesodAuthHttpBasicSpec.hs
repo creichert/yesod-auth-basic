@@ -10,6 +10,7 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Base64 as Base64
 import           Data.IORef
+import qualified Data.Text.Encoding as T
 import           Test.Hspec
 import           Yesod       hiding (get)
 import           Yesod.Auth.Http.Basic
@@ -48,6 +49,12 @@ spec = describe "Yesod HTTP Basic Authentication" $ do
       statusIs 401
       liftIO $ readIORef calls `shouldReturn` 1
 
+    yit "rejects an invalid UTF-8 username even when the checker accepts its bytes" $ do
+      liftIO $ writeIORef calls 0
+      requestWith $ Just $ basic $ BS.singleton 255 <> ":secret"
+      statusIs 401
+      liftIO $ readIORef calls `shouldReturn` 1
+
     yit "does not reuse authentication between HTTP requests" $ do
       liftIO $ writeIORef calls 0
       requestWith $ Just $ basic "user:secret"
@@ -64,6 +71,7 @@ validHeaders =
   , ("preserves colons in the password and accepts Base64 needing no padding", basic "user:se:cret", "user")
   , ("preserves whitespace inside decoded credentials", basic " user : secret ", " user ")
   , ("allows the checker to accept an empty password", basic "user:", "user")
+  , ("accepts a UTF-8 username", basic (utf8Username <> ":secret"), "josé")
   ]
 
 malformedHeaders :: [(String, ByteString)]
@@ -92,6 +100,9 @@ payload = Base64.encode "user:secret"
 basic :: ByteString -> ByteString
 basic credentials = "Basic " <> Base64.encode credentials
 
+utf8Username :: ByteString
+utf8Username = T.encodeUtf8 "josé"
+
 requestWith :: Maybe ByteString -> YesodExample LiteApp ()
 requestWith header = request $ do
   setMethod "GET"
@@ -115,4 +126,5 @@ app calls = liteApp $
     checkCreds username password = do
       modifyIORef calls (+ 1)
       return $ (username, password) `elem`
-        [("user", "secret"), ("user", "se:cret"), (" user ", " secret "), ("user", "")]
+        [ ("user", "secret"), ("user", "se:cret"), (" user ", " secret "), ("user", "")
+        , (utf8Username, "secret"), (BS.singleton 255, "secret") ]

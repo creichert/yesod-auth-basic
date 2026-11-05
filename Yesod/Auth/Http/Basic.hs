@@ -161,5 +161,5 @@ maybeBasicAuthId checkCreds _ req =
               Just (_,password) -> do
                 authorized <- liftIO $ checkCreds username password
                 return $ if authorized
-                           then Just $ T.decodeUtf8 username
+                           then either (const Nothing) Just $ T.decodeUtf8' username
                            else Nothing
